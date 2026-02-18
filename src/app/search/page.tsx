@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
+import { sanitizeSearchQuery } from '@/lib/utils'
 import SongCard from '@/components/SongCard'
 import ArtistCard from '@/components/ArtistCard'
 import { Search } from 'lucide-react'
@@ -17,7 +18,8 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
 }
 
 export default async function SearchPage({ searchParams }: Props) {
-  const { q } = await searchParams
+  const raw = (await searchParams).q
+  const q = raw ? sanitizeSearchQuery(raw) : ''
 
   if (!q || q.length < 2) {
     return (

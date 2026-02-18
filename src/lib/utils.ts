@@ -14,3 +14,7 @@ export function slugify(text: string): string {
 export function getDirection(language: string): 'rtl' | 'ltr' {
   return language === 'he' ? 'rtl' : 'ltr'
 }
+
+export function sanitizeSearchQuery(query: string): string {
+  return query.replace(/[%_,\\]/g, '').trim()
+}

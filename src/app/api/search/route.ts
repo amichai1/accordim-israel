@@ -1,8 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { sanitizeSearchQuery } from '@/lib/utils'
 
 export async function GET(request: NextRequest) {
-  const q = request.nextUrl.searchParams.get('q')
+  const raw = request.nextUrl.searchParams.get('q')
+  const q = raw ? sanitizeSearchQuery(raw) : ''
   if (!q || q.length < 2) {
     return NextResponse.json({ songs: [], artists: [] })
   }

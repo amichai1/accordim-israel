@@ -82,7 +82,13 @@ ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
 -- כולם יכולים לקרוא שירים ואמנים
 CREATE POLICY "Public read artists" ON artists FOR SELECT USING (true);
 CREATE POLICY "Public read songs" ON songs FOR SELECT USING (true);
-CREATE POLICY "Public update song views" ON songs FOR UPDATE USING (true) WITH CHECK (true);
+-- עדכון צפיות דרך פונקציה בלבד (לא דרך UPDATE ישיר)
+CREATE OR REPLACE FUNCTION public.increment_song_views(song_slug TEXT)
+RETURNS VOID AS $$
+BEGIN
+  UPDATE songs SET views = views + 1 WHERE slug = song_slug;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
 
 -- פרופילים - כל משתמש קורא רק את שלו
 CREATE POLICY "Users read own profile" ON profiles FOR SELECT USING (auth.uid() = id);

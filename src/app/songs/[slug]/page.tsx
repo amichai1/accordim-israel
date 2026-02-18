@@ -37,11 +37,8 @@ export default async function SongPage({ params }: Props) {
 
   if (!song) notFound()
 
-  // Increment views
-  await supabase
-    .from('songs')
-    .update({ views: (song.views || 0) + 1 })
-    .eq('id', song.id)
+  // Increment views via secure server function
+  await supabase.rpc('increment_song_views', { song_slug: slug })
 
   const artist = song.artist as unknown as { name: string; slug: string }
 
