@@ -78,6 +78,27 @@ export default function AccessibilityPage() {
         </section>
 
         <section>
+          <h2 className="text-xl font-bold mb-2">מגבלות ידועות</h2>
+          <p>
+            למרות מאמצינו, ייתכנו אזורים באתר שטרם הונגשו באופן מלא:
+          </p>
+          <ul className="list-disc pr-6 space-y-1 mt-2">
+            <li>
+              סימוני אקורדים מעל מילות השיר — מבנה ויזואלי שעשוי
+              להיות מורכב לקוראי מסך מסוימים
+            </li>
+            <li>
+              תוכן שנוסף על ידי משתמשים עשוי שלא לעמוד בכל
+              תקני הנגישות
+            </li>
+          </ul>
+          <p className="mt-2">
+            אנו עובדים באופן שוטף לשפר את הנגישות ולהתאים
+            את האתר לתקנים העדכניים.
+          </p>
+        </section>
+
+        <section>
           <h2 className="text-xl font-bold mb-2">דפדפנים נתמכים</h2>
           <p>
             האתר נבדק ותואם לדפדפנים הנפוצים בגרסאותיהם העדכניות:
@@ -86,16 +107,28 @@ export default function AccessibilityPage() {
         </section>
 
         <section>
-          <h2 className="text-xl font-bold mb-2">פניות בנושא נגישות</h2>
+          <h2 className="text-xl font-bold mb-2">ביקורת נגישות</h2>
           <p>
-            אם נתקלת בבעיית נגישות באתר או שיש לך הצעות לשיפור,
-            נשמח לשמוע ממך:
+            ביקורת הנגישות האחרונה בוצעה בתאריך: פברואר 2026.
+            האתר נבדק ברמת תאימות AA של WCAG 2.0 בהתאם
+            לתקן הישראלי SI 5568.
+          </p>
+        </section>
+
+        <section>
+          <h2 className="text-xl font-bold mb-2">רכז נגישות</h2>
+          <p>
+            לפניות בנושא נגישות ניתן לפנות לרכז הנגישות שלנו:
           </p>
           <ul className="list-none pr-0 space-y-1 mt-2">
-            <li>דואר אלקטרוני: contact@accordim.co.il</li>
+            <li>שם: צוות אקורדים ישראל</li>
+            <li>דואר אלקטרוני: accessibility@accordim.co.il</li>
+            <li>דואר אלקטרוני כללי: contact@accordim.co.il</li>
           </ul>
           <p className="mt-2">
-            אנו מתחייבים לטפל בכל פנייה בנושא נגישות בהקדם האפשרי.
+            אנו מתחייבים לטפל בכל פנייה בנושא נגישות תוך 7 ימי
+            עסקים לכל היותר. אם נתקלת בבעיית נגישות באתר או
+            שיש לך הצעות לשיפור, נשמח לשמוע ממך.
           </p>
         </section>
       </div>
