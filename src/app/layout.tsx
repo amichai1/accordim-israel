@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { Heebo, Inter } from 'next/font/google'
 import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
+import AccessibilityWidget from '@/components/layout/AccessibilityWidget'
 import './globals.css'
 
 const heebo = Heebo({
@@ -38,16 +39,31 @@ export default function RootLayout({
                   document.documentElement.classList.add('dark');
                 }
               } catch(e) {}
+              try {
+                const a = localStorage.getItem('a11y');
+                if (a) {
+                  const p = JSON.parse(a);
+                  if (p.fontScale && p.fontScale !== 100) document.documentElement.style.fontSize = p.fontScale + '%';
+                  if (p.highContrast) document.documentElement.classList.add('high-contrast');
+                }
+              } catch(e) {}
             `,
           }}
         />
       </head>
       <body className={`${heebo.variable} ${inter.variable} font-[family-name:var(--font-heebo)] antialiased min-h-screen flex flex-col`}>
+        <a
+          href="#main-content"
+          className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:right-2 focus:z-[100] focus:bg-[var(--primary)] focus:text-white focus:px-4 focus:py-2 focus:rounded-lg"
+        >
+          דלג לתוכן
+        </a>
         <Header />
-        <main className="flex-1">
+        <main id="main-content" className="flex-1" role="main">
           {children}
         </main>
         <Footer />
+        <AccessibilityWidget />
       </body>
     </html>
   )

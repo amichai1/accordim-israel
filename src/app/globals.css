@@ -80,6 +80,29 @@ body {
   margin-bottom: 0.25rem;
 }
 
+/* High contrast mode */
+.high-contrast {
+  --background: #000000;
+  --foreground: #FFFFFF;
+  --card: #1A1A1A;
+  --chord: #FFD700;
+  --primary: #00BFFF;
+  --primary-light: #333333;
+  --border: #FFFFFF;
+  --muted: #CCCCCC;
+}
+
+.high-contrast.dark {
+  --background: #000000;
+  --foreground: #FFFFFF;
+  --card: #1A1A1A;
+  --chord: #FFD700;
+  --primary: #00BFFF;
+  --primary-light: #333333;
+  --border: #FFFFFF;
+  --muted: #CCCCCC;
+}
+
 /* Auto-scroll animation */
 @keyframes autoscroll {
   from { transform: translateY(0); }
