@@ -1,4 +1,8 @@
+'use client'
+
+import { useState, useCallback } from 'react'
 import type { SongLine, ChordWord as ChordWordType } from '@/lib/chordpro/types'
+import ChordDiagram from './ChordDiagram'
 
 interface ChordLineProps {
   line: SongLine
@@ -78,6 +82,16 @@ function buildSegments(words: ChordWordType[]): Segment[] {
 
 export default function ChordLine({ line }: ChordLineProps) {
   const segments = buildSegments(line.words)
+  const [openChord, setOpenChord] = useState<string | null>(null)
+
+  const handleChordClick = useCallback((chord: string, e: React.MouseEvent) => {
+    e.stopPropagation()
+    setOpenChord(prev => prev === chord ? null : chord)
+  }, [])
+
+  const handleClose = useCallback(() => {
+    setOpenChord(null)
+  }, [])
 
   return (
     <div className="song-line my-0.5">
@@ -95,9 +109,29 @@ export default function ChordLine({ line }: ChordLineProps) {
           <span key={i} className="word-group">
             {seg.words.map((w, j) => (
               <span key={j} className="chord-word">
-                <span className={w.chord ? 'chord' : 'chord invisible'}>
-                  {w.chord || '\u00A0'}
-                </span>
+                {w.chord ? (
+                  <span
+                    className="chord chord-clickable"
+                    onClick={(e) => handleChordClick(w.chord!, e)}
+                    role="button"
+                    tabIndex={0}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault()
+                        handleChordClick(w.chord!, e as unknown as React.MouseEvent)
+                      }
+                    }}
+                  >
+                    {w.chord}
+                    {openChord === w.chord && (
+                      <ChordDiagram chordName={w.chord} onClose={handleClose} />
+                    )}
+                  </span>
+                ) : (
+                  <span className="chord invisible">
+                    {'\u00A0'}
+                  </span>
+                )}
                 <span className="lyric">{w.text}</span>
               </span>
             ))}

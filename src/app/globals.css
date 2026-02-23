@@ -115,6 +115,175 @@ body {
   --muted: #CCCCCC;
 }
 
+/* Clickable chord */
+.chord-clickable {
+  cursor: pointer;
+  position: relative;
+  border-radius: 3px;
+  padding: 0 2px;
+  margin: 0 -2px;
+  transition: background-color 0.15s;
+}
+
+.chord-clickable:hover {
+  background-color: color-mix(in srgb, var(--chord) 15%, transparent);
+}
+
+.chord-clickable:focus-visible {
+  outline: 2px solid var(--chord);
+  outline-offset: 1px;
+}
+
+/* Chord diagram popup */
+.chord-diagram-popup {
+  position: absolute;
+  z-index: 50;
+  top: 100%;
+  inset-inline-start: 50%;
+  transform: translateX(-50%);
+  margin-top: 6px;
+  width: 220px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  animation: chord-popup-in 0.15s ease-out;
+}
+
+[dir="rtl"] .chord-diagram-popup {
+  transform: translateX(50%);
+}
+
+@keyframes chord-popup-in {
+  from {
+    opacity: 0;
+    margin-top: 2px;
+  }
+  to {
+    opacity: 1;
+    margin-top: 6px;
+  }
+}
+
+.chord-diagram-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px 4px;
+}
+
+.chord-diagram-title {
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--chord);
+}
+
+.chord-diagram-close {
+  background: none;
+  border: none;
+  color: var(--muted);
+  cursor: pointer;
+  padding: 2px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+}
+
+.chord-diagram-close:hover {
+  color: var(--foreground);
+  background: color-mix(in srgb, var(--muted) 15%, transparent);
+}
+
+.chord-diagram-tabs {
+  display: flex;
+  gap: 0;
+  padding: 0 12px;
+  border-bottom: 1px solid var(--border);
+}
+
+.chord-diagram-tab {
+  flex: 1;
+  background: none;
+  border: none;
+  padding: 6px 8px;
+  font-size: 0.8rem;
+  color: var(--muted);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: color 0.15s, border-color 0.15s;
+}
+
+.chord-diagram-tab:hover {
+  color: var(--foreground);
+}
+
+.chord-diagram-tab.active {
+  color: var(--chord);
+  border-bottom-color: var(--chord);
+  font-weight: 600;
+}
+
+.chord-diagram-body {
+  padding: 8px 12px 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.chord-diagram-svg {
+  width: 140px;
+  height: auto;
+}
+
+.chord-diagram-svg svg {
+  width: 100%;
+  height: auto;
+}
+
+.chord-diagram-nav {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 4px;
+}
+
+.chord-diagram-nav button {
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--muted);
+  transition: color 0.15s, border-color 0.15s;
+}
+
+.chord-diagram-nav button:hover {
+  color: var(--foreground);
+  border-color: var(--muted);
+}
+
+.chord-diagram-voicing-info {
+  font-size: 0.75rem;
+  color: var(--muted);
+  min-width: 40px;
+  text-align: center;
+}
+
+.chord-diagram-not-found {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 16px 0;
+  color: var(--muted);
+  font-size: 0.85rem;
+  text-align: center;
+}
+
 /* Auto-scroll animation */
 @keyframes autoscroll {
   from { transform: translateY(0); }
