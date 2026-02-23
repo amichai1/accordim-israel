@@ -58,16 +58,28 @@ body {
   min-height: 1.4em;
 }
 
+.chord-word .chord.invisible {
+  visibility: hidden;
+}
+
 .chord-word .lyric {
   white-space: pre-wrap;
   line-height: 1.6;
 }
 
-/* Song line */
+/* Word group — keeps parts of the same word together */
+.word-group {
+  display: inline;
+  white-space: nowrap;
+}
+
+/* Song line — inline flow so breaks only happen at spaces */
 .song-line {
-  display: flex;
-  flex-wrap: wrap;
   direction: inherit;
+}
+
+.song-line > .lyric {
+  white-space: pre-wrap;
 }
 
 /* Section labels */
