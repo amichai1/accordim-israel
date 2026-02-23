@@ -1,7 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import SongCard from '@/components/SongCard'
 import ArtistCard from '@/components/ArtistCard'
-import { Search } from 'lucide-react'
+import HeroSearch from '@/components/HeroSearch'
 import type { SongWithArtist, Artist } from '@/lib/supabase/types'
 
 export default async function HomePage() {
@@ -35,15 +35,7 @@ export default async function HomePage() {
       <div className="text-center mb-10">
         <h1 className="text-3xl sm:text-4xl font-bold mb-2">אקורדים ישראל</h1>
         <p className="text-[var(--muted)] mb-6">אקורדים לשירים ישראליים ובינלאומיים</p>
-        <div className="relative max-w-lg mx-auto">
-          <Search size={18} className="absolute right-4 top-1/2 -translate-y-1/2 text-[var(--muted)]" />
-          <input
-            type="text"
-            placeholder="חפש שיר, אמן או מילים..."
-            className="w-full pr-11 pl-4 py-3 rounded-xl border border-[var(--border)] bg-[var(--card)] text-lg focus:outline-none focus:border-[var(--primary)] transition-colors"
-            readOnly
-          />
-        </div>
+        <HeroSearch />
       </div>
 
       {/* Popular songs */}
