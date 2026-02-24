@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef, useMemo } from 'react'
 import { parseChordPro } from '@/lib/chordpro/parser'
 import { transposeChord } from '@/lib/chordpro/transpose'
-import { simplifyChord } from '@/lib/chordpro/simplify'
+import { findEasyTranspose } from '@/lib/chordpro/simplify'
 import { getCapoSuggestions, type CapoSuggestion } from '@/lib/chordpro/capo'
 import ChordLine from './ChordLine'
 import SongControls from './SongControls'
@@ -20,22 +20,16 @@ interface SongViewProps {
 
 const FONT_SIZES = ['text-sm', 'text-base', 'text-lg']
 
-function transformSectionWords(
-  section: SongSection,
-  steps: number,
-  simplified: boolean,
-): SongSection {
-  if (steps === 0 && !simplified) return section
+function transposeSectionWords(section: SongSection, steps: number): SongSection {
+  if (steps === 0) return section
   return {
     ...section,
     lines: section.lines.map(line => ({
       ...line,
-      words: line.words.map((word: ChordWord) => {
-        if (!word.chord) return word
-        let chord = steps !== 0 ? transposeChord(word.chord, steps) : word.chord
-        if (simplified) chord = simplifyChord(chord)
-        return { ...word, chord }
-      }),
+      words: line.words.map((word: ChordWord) => ({
+        ...word,
+        chord: word.chord ? transposeChord(word.chord, steps) : undefined,
+      })),
     })),
   }
 }
@@ -45,27 +39,41 @@ export default function SongView({ content, title, artist, originalKey, language
   const [fontSize, setFontSize] = useState(1)
   const [autoScroll, setAutoScroll] = useState(false)
   const [scrollSpeed, setScrollSpeed] = useState(50)
-  const [simplified, setSimplified] = useState(false)
   const scrollRef = useRef<number>(0)
   const containerRef = useRef<HTMLDivElement>(null)
 
   const parsed = useMemo(() => parseChordPro(content), [content])
 
+  // Collect all chords from the song for easy-key analysis
+  const allChords = useMemo(() => {
+    const chords: string[] = []
+    for (const section of parsed.sections) {
+      for (const line of section.lines) {
+        for (const word of line.words) {
+          if (word.chord) chords.push(word.chord)
+        }
+      }
+    }
+    return chords
+  }, [parsed.sections])
+
+  // Calculate the easy transpose offset
+  const easyTranspose = useMemo(() => findEasyTranspose(allChords), [allChords])
+
   const currentKey = useMemo(() => {
     const key = originalKey || parsed.meta.key || '?'
-    let result = transpose !== 0 ? transposeChord(key, transpose) : key
-    if (simplified) result = simplifyChord(result)
-    return result
-  }, [originalKey, parsed.meta.key, transpose, simplified])
+    return transpose !== 0 ? transposeChord(key, transpose) : key
+  }, [originalKey, parsed.meta.key, transpose])
 
   const sections = useMemo(
-    () => parsed.sections.map(s => transformSectionWords(s, transpose, simplified)),
-    [parsed.sections, transpose, simplified]
+    () => parsed.sections.map(s => transposeSectionWords(s, transpose)),
+    [parsed.sections, transpose]
   )
 
+  // Capo suggestions — only when transposed away from original
   const capoSuggestions: CapoSuggestion[] = useMemo(
-    () => getCapoSuggestions(currentKey),
-    [currentKey]
+    () => transpose !== 0 ? getCapoSuggestions(currentKey) : [],
+    [currentKey, transpose]
   )
 
   // Auto-scroll
@@ -88,7 +96,14 @@ export default function SongView({ content, title, artist, originalKey, language
     }
   }, [autoScroll, scrollSpeed])
 
+  function handleEasyKey() {
+    if (easyTranspose === 0) return
+    // Toggle: if already at easy key, go back to original
+    setTranspose(prev => prev === easyTranspose ? 0 : easyTranspose)
+  }
+
   const dir = language === 'he' ? 'rtl' : 'ltr'
+  const isEasyKeyActive = easyTranspose !== 0 && transpose === easyTranspose
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-6 animate-fade-in" ref={containerRef}>
@@ -110,12 +125,13 @@ export default function SongView({ content, title, artist, originalKey, language
           fontSize={fontSize}
           autoScroll={autoScroll}
           scrollSpeed={scrollSpeed}
-          simplified={simplified}
+          hasEasyKey={easyTranspose !== 0}
+          isEasyKeyActive={isEasyKeyActive}
           onTranspose={(dir) => setTranspose(prev => prev + dir)}
           onFontSizeChange={(dir) => setFontSize(prev => Math.max(0, Math.min(2, prev + dir)))}
           onAutoScrollToggle={() => setAutoScroll(prev => !prev)}
           onScrollSpeedChange={setScrollSpeed}
-          onSimplifiedToggle={() => setSimplified(prev => !prev)}
+          onEasyKey={handleEasyKey}
           capoSuggestions={capoSuggestions}
         />
       </div>

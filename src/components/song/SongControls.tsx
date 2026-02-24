@@ -10,13 +10,14 @@ interface SongControlsProps {
   fontSize: number
   autoScroll: boolean
   scrollSpeed: number
-  simplified: boolean
+  hasEasyKey: boolean
+  isEasyKeyActive: boolean
   capoSuggestions?: CapoSuggestion[]
   onTranspose: (direction: 1 | -1) => void
   onFontSizeChange: (direction: 1 | -1) => void
   onAutoScrollToggle: () => void
   onScrollSpeedChange: (speed: number) => void
-  onSimplifiedToggle: () => void
+  onEasyKey: () => void
 }
 
 export default function SongControls({
@@ -24,13 +25,14 @@ export default function SongControls({
   fontSize,
   autoScroll,
   scrollSpeed,
-  simplified,
+  hasEasyKey,
+  isEasyKeyActive,
   capoSuggestions = [],
   onTranspose,
   onFontSizeChange,
   onAutoScrollToggle,
   onScrollSpeedChange,
-  onSimplifiedToggle,
+  onEasyKey,
 }: SongControlsProps) {
   const [mobileExpanded, setMobileExpanded] = useState(false)
   const bestCapo = capoSuggestions.length > 0 ? capoSuggestions[0] : null
@@ -70,15 +72,17 @@ export default function SongControls({
 
         <div className="w-px h-6 bg-[var(--border)]" />
 
-        {/* Simplify */}
-        <button
-          onClick={onSimplifiedToggle}
-          aria-label={simplified ? 'הצג אקורדים מקוריים' : 'פשט אקורדים'}
-          className={`flex items-center gap-1 px-2 py-1 rounded transition-colors ${simplified ? 'bg-[var(--primary)] text-white' : 'hover:bg-[var(--border)]'}`}
-        >
-          <Sparkles size={14} />
-          <span className="text-xs font-medium">קל</span>
-        </button>
+        {/* Easy key */}
+        {hasEasyKey && (
+          <button
+            onClick={onEasyKey}
+            aria-label={isEasyKeyActive ? 'חזור לטון מקורי' : 'טון קל'}
+            className={`flex items-center gap-1 px-2 py-1 rounded transition-colors ${isEasyKeyActive ? 'bg-[var(--primary)] text-white' : 'hover:bg-[var(--border)]'}`}
+          >
+            <Sparkles size={14} />
+            <span className="text-xs font-medium">טון קל</span>
+          </button>
+        )}
 
         <div className="w-px h-6 bg-[var(--border)]" />
 
@@ -135,14 +139,16 @@ export default function SongControls({
           {/* Divider */}
           <div className="w-px h-6 bg-[var(--border)]" />
 
-          {/* Simplify */}
-          <button
-            onClick={onSimplifiedToggle}
-            aria-label={simplified ? 'הצג אקורדים מקוריים' : 'פשט אקורדים'}
-            className={simplified ? btnActive : btnDefault}
-          >
-            <Sparkles size={18} />
-          </button>
+          {/* Easy key */}
+          {hasEasyKey && (
+            <button
+              onClick={onEasyKey}
+              aria-label={isEasyKeyActive ? 'חזור לטון מקורי' : 'טון קל'}
+              className={isEasyKeyActive ? btnActive : btnDefault}
+            >
+              <Sparkles size={18} />
+            </button>
+          )}
 
           {/* Auto scroll */}
           <button onClick={onAutoScrollToggle} aria-label="גלילה אוטומטית" className={autoScroll ? btnActive : btnDefault}>

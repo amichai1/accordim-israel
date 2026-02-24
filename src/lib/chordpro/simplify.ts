@@ -1,88 +1,103 @@
 /**
- * Chord simplification for beginners.
+ * Easy key finder.
  *
- * Standard rules from music theory — strip extensions and keep the base quality:
- *   Cmaj7 → C,  Dm9 → Dm,  G13 → G,  Fsus4 → F,  Am7 → Am,  etc.
+ * Analyzes all chords in a song and finds the transposition (0-11 semitones)
+ * that results in the most "easy" open guitar chords — i.e. the key with
+ * the fewest sharps, flats, and barre chords.
  *
- * The suffix is matched longest-first so "m7b5" beats "m7".
+ * Example: a song in F#m with chords F#m, B, C#, G#m → transposing -2 gives
+ * Em, A, B, F#m — much simpler to play.
  */
 
-// Maps complex suffix → simplified suffix.
-// Order matters: longer suffixes first to avoid partial matches.
-const SUFFIX_SIMPLIFICATION: [RegExp, string][] = [
-  // Slash chords — strip the bass note
-  [/\/[A-G][#b]?$/, ''],
+import { transposeChord } from './transpose'
 
-  // Major extended (must come before minor to avoid "maj7" matching "m...")
-  [/^maj(?:7|9|11|13)(?:#11|#5)?$/, ''],
-  [/^(?:7|9|11|13)(?:sus[24]|b5|#5|b9|#9|b13|#11)?$/, ''],
-  [/^6(?:\/9)?$/, ''],
-  [/^add(?:9|11|13)$/, ''],
-  [/^sus[24]$/, ''],
+const NOTES_SHARP = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B']
+const NOTES_FLAT = ['C', 'Db', 'D', 'Eb', 'E', 'F', 'Gb', 'G', 'Ab', 'A', 'Bb', 'B']
 
-  // Minor extended
-  [/^m(?:aj)?(?:7|9|11|13)(?:b5|#5|#9|b9|#11|b13)?$/, 'm'],
-  [/^m7b5$/, 'm'],
-  [/^m6$/, 'm'],
-  [/^madd(?:9|11)$/, 'm'],
-  [/^msus[24]$/, 'm'],
-
-  // Diminished extended
-  [/^dim7$/, 'dim'],
-
-  // Augmented extended
-  [/^aug7$/, ''],
-  [/^\+7$/, ''],
-
-  // Power chords — keep as-is (already simple)
-  [/^5$/, '5'],
-]
+/** Chords that are easy to play on guitar (open position, no barre). */
+const EASY_CHORDS = new Set([
+  // Major open chords
+  'C', 'G', 'D', 'A', 'E',
+  // Minor open chords
+  'Am', 'Em', 'Dm',
+  // Very common / manageable
+  'F', 'Bm',
+])
 
 /**
- * Parse a chord string into root + suffix.
- * E.g. "F#m7" → { root: "F#", suffix: "m7" }
+ * Score a chord: higher = easier to play.
+ * - Easy open chords score 3
+ * - Chords with only natural roots (no # or b) score 1
+ * - Everything else scores 0
  */
-function parseChord(chord: string): { root: string; suffix: string } | null {
-  // Handle slash chords like "Am/E" — parse the whole thing
-  const match = chord.match(/^([A-G][#b]?)(.*)$/)
-  if (!match) return null
-  return { root: match[1], suffix: match[2] }
+function chordEaseScore(chord: string): number {
+  // Extract root + basic quality for matching
+  const match = chord.match(/^([A-G][#b]?)(m)?/)
+  if (!match) return 0
+
+  const root = match[1]
+  const baseChord = root + (match[2] || '')
+
+  if (EASY_CHORDS.has(baseChord)) return 3
+  // Natural root (no sharp/flat) is still easier than sharp/flat
+  if (!root.includes('#') && !root.includes('b')) return 1
+  return 0
 }
 
 /**
- * Simplify a single chord name for beginners.
- * Returns the simplified chord, or the original if no simplification applies.
+ * Extract all unique chord roots+quality from parsed sections.
+ * Returns an array of unique chord strings (e.g. ["Am", "F", "C", "G"]).
  */
-export function simplifyChord(chord: string): string {
-  const parts = parseChord(chord)
-  if (!parts) return chord
-
-  let { root, suffix } = parts
-
-  // Handle slash chords first: strip the bass note, then simplify the remainder
-  const slashMatch = suffix.match(/^(.*)\/[A-G][#b]?$/)
-  if (slashMatch) {
-    suffix = slashMatch[1]
+function extractUniqueChords(chords: string[]): string[] {
+  const seen = new Set<string>()
+  for (const chord of chords) {
+    // Normalize: strip slash bass notes for scoring
+    const stripped = chord.replace(/\/[A-G][#b]?$/, '')
+    seen.add(stripped)
   }
+  return Array.from(seen)
+}
 
-  // Already simple (major or minor with no extensions)
-  if (suffix === '' || suffix === 'm' || suffix === 'dim' || suffix === 'aug' || suffix === '5') {
-    return root + suffix
+/**
+ * Score a transposition: sum of ease scores for all unique chords
+ * when transposed by `steps` semitones.
+ */
+function scoreTransposition(uniqueChords: string[], steps: number): number {
+  let total = 0
+  for (const chord of uniqueChords) {
+    const transposed = transposeChord(chord, steps)
+    total += chordEaseScore(transposed)
   }
+  return total
+}
 
-  for (const [pattern, replacement] of SUFFIX_SIMPLIFICATION) {
-    if (pattern.test(suffix)) {
-      return root + replacement
+/**
+ * Find the best transposition (number of semitones) for easiest playing.
+ *
+ * @param allChords - Array of all chord names used in the song
+ * @returns The number of semitones to transpose (0-11), or 0 if already optimal
+ */
+export function findEasyTranspose(allChords: string[]): number {
+  const unique = extractUniqueChords(allChords)
+  if (unique.length === 0) return 0
+
+  let bestSteps = 0
+  let bestScore = scoreTransposition(unique, 0)
+
+  for (let steps = 1; steps < 12; steps++) {
+    const score = scoreTransposition(unique, steps)
+    if (score > bestScore) {
+      bestScore = score
+      bestSteps = steps
     }
   }
 
-  // No rule matched — return original
-  return chord
+  return bestSteps
 }
 
 /**
- * Check if a chord would change when simplified.
+ * Check if there exists a better (easier) key than the current one.
  */
-export function isSimplifiable(chord: string): boolean {
-  return simplifyChord(chord) !== chord
+export function hasEasierKey(allChords: string[]): boolean {
+  return findEasyTranspose(allChords) !== 0
 }

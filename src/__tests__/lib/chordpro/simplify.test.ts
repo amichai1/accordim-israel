@@ -1,98 +1,53 @@
 import { describe, it, expect } from 'vitest'
-import { simplifyChord, isSimplifiable } from '@/lib/chordpro/simplify'
+import { findEasyTranspose, hasEasierKey } from '@/lib/chordpro/simplify'
 
-describe('simplifyChord', () => {
-  it('keeps simple major chords unchanged', () => {
-    expect(simplifyChord('C')).toBe('C')
-    expect(simplifyChord('G')).toBe('G')
-    expect(simplifyChord('F#')).toBe('F#')
+describe('findEasyTranspose', () => {
+  it('returns 0 for already-easy chords (Am, C, G, F)', () => {
+    expect(findEasyTranspose(['Am', 'C', 'G', 'F'])).toBe(0)
   })
 
-  it('keeps simple minor chords unchanged', () => {
-    expect(simplifyChord('Am')).toBe('Am')
-    expect(simplifyChord('Em')).toBe('Em')
-    expect(simplifyChord('F#m')).toBe('F#m')
+  it('returns 0 for empty chord list', () => {
+    expect(findEasyTranspose([])).toBe(0)
   })
 
-  it('simplifies major 7th/9th/11th/13th to major', () => {
-    expect(simplifyChord('Cmaj7')).toBe('C')
-    expect(simplifyChord('Gmaj9')).toBe('G')
-    expect(simplifyChord('Dmaj13')).toBe('D')
+  it('finds easier key for sharp-heavy songs', () => {
+    // F#m, B, C#m, G#m — lots of sharps
+    const steps = findEasyTranspose(['F#m', 'B', 'C#m', 'G#m'])
+    expect(steps).not.toBe(0)
+    expect(steps).toBeGreaterThanOrEqual(1)
+    expect(steps).toBeLessThan(12)
   })
 
-  it('simplifies dominant 7th/9th/11th/13th to major', () => {
-    expect(simplifyChord('G7')).toBe('G')
-    expect(simplifyChord('C9')).toBe('C')
-    expect(simplifyChord('A13')).toBe('A')
-    expect(simplifyChord('D7b9')).toBe('D')
-    expect(simplifyChord('E7#9')).toBe('E')
+  it('finds easier key for flat-heavy songs', () => {
+    // Bbm, Eb, Ab, Db — all flats
+    const steps = findEasyTranspose(['Bbm', 'Eb', 'Ab', 'Db'])
+    expect(steps).not.toBe(0)
   })
 
-  it('simplifies minor 7th/9th to minor', () => {
-    expect(simplifyChord('Am7')).toBe('Am')
-    expect(simplifyChord('Dm9')).toBe('Dm')
-    expect(simplifyChord('F#m7')).toBe('F#m')
-    expect(simplifyChord('Bm7')).toBe('Bm')
+  it('prefers keys with more open chords', () => {
+    // Bb, Eb, F — would be easier as G, C, D (transpose +9 = -3)
+    const steps = findEasyTranspose(['Bb', 'Eb', 'F'])
+    expect(steps).not.toBe(0)
   })
 
-  it('simplifies sus chords to major', () => {
-    expect(simplifyChord('Dsus4')).toBe('D')
-    expect(simplifyChord('Asus2')).toBe('A')
-    expect(simplifyChord('Gsus4')).toBe('G')
+  it('handles songs with only one chord', () => {
+    expect(findEasyTranspose(['G'])).toBe(0) // already easy
+    const steps = findEasyTranspose(['Gb'])
+    expect(steps).not.toBe(0) // Gb is not easy
   })
 
-  it('simplifies add chords to base', () => {
-    expect(simplifyChord('Cadd9')).toBe('C')
-    expect(simplifyChord('Emadd9')).toBe('Em')
-  })
-
-  it('simplifies 6th chords', () => {
-    expect(simplifyChord('C6')).toBe('C')
-    expect(simplifyChord('Am6')).toBe('Am')
-    expect(simplifyChord('G6/9')).toBe('G')
-  })
-
-  it('simplifies diminished 7th to dim', () => {
-    expect(simplifyChord('Cdim7')).toBe('Cdim')
-  })
-
-  it('simplifies m7b5 to minor', () => {
-    expect(simplifyChord('Bm7b5')).toBe('Bm')
-  })
-
-  it('simplifies slash chords by removing bass note', () => {
-    expect(simplifyChord('C/G')).toBe('C')
-    expect(simplifyChord('Am/E')).toBe('Am')
-    expect(simplifyChord('D/F#')).toBe('D')
-  })
-
-  it('keeps dim and aug unchanged', () => {
-    expect(simplifyChord('Cdim')).toBe('Cdim')
-    expect(simplifyChord('Caug')).toBe('Caug')
-  })
-
-  it('keeps power chords unchanged', () => {
-    expect(simplifyChord('A5')).toBe('A5')
-    expect(simplifyChord('E5')).toBe('E5')
-  })
-
-  it('returns original for unrecognized patterns', () => {
-    expect(simplifyChord('N.C.')).toBe('N.C.')
-    expect(simplifyChord('X')).toBe('X')
+  it('strips slash bass notes for scoring', () => {
+    // Am/E, C/G, G — all easy, slash notes should not affect
+    expect(findEasyTranspose(['Am/E', 'C/G', 'G'])).toBe(0)
   })
 })
 
-describe('isSimplifiable', () => {
-  it('returns false for already simple chords', () => {
-    expect(isSimplifiable('C')).toBe(false)
-    expect(isSimplifiable('Am')).toBe(false)
-    expect(isSimplifiable('E5')).toBe(false)
+describe('hasEasierKey', () => {
+  it('returns false for already-easy songs', () => {
+    expect(hasEasierKey(['Am', 'C', 'G', 'Em'])).toBe(false)
   })
 
-  it('returns true for complex chords', () => {
-    expect(isSimplifiable('Cmaj7')).toBe(true)
-    expect(isSimplifiable('Am7')).toBe(true)
-    expect(isSimplifiable('Dsus4')).toBe(true)
-    expect(isSimplifiable('G/B')).toBe(true)
+  it('returns true for hard-key songs', () => {
+    expect(hasEasierKey(['F#m', 'B', 'C#m', 'G#m'])).toBe(true)
   })
 })
