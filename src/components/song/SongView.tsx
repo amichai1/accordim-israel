@@ -86,8 +86,8 @@ export default function SongView({ content, title, artist, originalKey, language
         </div>
       </div>
 
-      {/* Controls */}
-      <div className="mb-6">
+      {/* Controls - sticky below header */}
+      <div className="sticky top-14 z-40 -mx-4 px-4 py-2 mb-4 bg-[var(--background)]/80 backdrop-blur-md border-b border-transparent transition-shadow [&:not(:first-child)]:border-[var(--border)]/50 shadow-sm">
         <SongControls
           currentKey={currentKey}
           transpose={transpose}

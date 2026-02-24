@@ -25,7 +25,7 @@ export default function SongControls({
   onScrollSpeedChange,
 }: SongControlsProps) {
   return (
-    <div className="flex flex-wrap items-center gap-3 p-3 rounded-lg border border-[var(--border)] bg-[var(--card)] text-sm">
+    <div className="flex flex-wrap items-center gap-3 p-3 rounded-lg border border-[var(--border)] bg-[var(--card)]/80 backdrop-blur-sm text-sm">
       {/* Font size */}
       <div className="flex items-center gap-1">
         <button
