@@ -4,6 +4,7 @@ import { useState, useEffect, useRef, useMemo } from 'react'
 import { parseChordPro } from '@/lib/chordpro/parser'
 import { transposeChord } from '@/lib/chordpro/transpose'
 import { simplifyChord } from '@/lib/chordpro/simplify'
+import { getCapoSuggestions, type CapoSuggestion } from '@/lib/chordpro/capo'
 import ChordLine from './ChordLine'
 import SongControls from './SongControls'
 import type { SongSection, ChordWord } from '@/lib/chordpro/types'
@@ -62,6 +63,11 @@ export default function SongView({ content, title, artist, originalKey, language
     [parsed.sections, transpose, simplified]
   )
 
+  const capoSuggestions: CapoSuggestion[] = useMemo(
+    () => getCapoSuggestions(currentKey),
+    [currentKey]
+  )
+
   // Auto-scroll
   useEffect(() => {
     if (!autoScroll) {
@@ -110,6 +116,7 @@ export default function SongView({ content, title, artist, originalKey, language
           onAutoScrollToggle={() => setAutoScroll(prev => !prev)}
           onScrollSpeedChange={setScrollSpeed}
           onSimplifiedToggle={() => setSimplified(prev => !prev)}
+          capoSuggestions={capoSuggestions}
         />
       </div>
 
