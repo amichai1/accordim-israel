@@ -10,10 +10,12 @@ describe('SongControls', () => {
     fontSize: 1,
     autoScroll: false,
     scrollSpeed: 50,
+    simplified: false,
     onTranspose: () => {},
     onFontSizeChange: () => {},
     onAutoScrollToggle: () => {},
     onScrollSpeedChange: () => {},
+    onSimplifiedToggle: () => {},
   }
 
   it('renders transpose buttons', () => {

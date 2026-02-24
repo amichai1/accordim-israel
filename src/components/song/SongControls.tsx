@@ -1,6 +1,6 @@
 'use client'
 
-import { ChevronUp, ChevronDown, Minus, Plus, Play, Pause } from 'lucide-react'
+import { ChevronUp, ChevronDown, Minus, Plus, Play, Pause, Sparkles } from 'lucide-react'
 
 interface SongControlsProps {
   currentKey: string
@@ -8,10 +8,12 @@ interface SongControlsProps {
   fontSize: number
   autoScroll: boolean
   scrollSpeed: number
+  simplified: boolean
   onTranspose: (direction: 1 | -1) => void
   onFontSizeChange: (direction: 1 | -1) => void
   onAutoScrollToggle: () => void
   onScrollSpeedChange: (speed: number) => void
+  onSimplifiedToggle: () => void
 }
 
 export default function SongControls({
@@ -19,10 +21,12 @@ export default function SongControls({
   fontSize,
   autoScroll,
   scrollSpeed,
+  simplified,
   onTranspose,
   onFontSizeChange,
   onAutoScrollToggle,
   onScrollSpeedChange,
+  onSimplifiedToggle,
 }: SongControlsProps) {
   return (
     <div className="flex flex-wrap items-center gap-3 p-3 rounded-lg border border-[var(--border)] bg-[var(--card)]/80 backdrop-blur-sm text-sm">
@@ -69,6 +73,23 @@ export default function SongControls({
           <ChevronUp size={16} />
         </button>
       </div>
+
+      <div className="w-px h-6 bg-[var(--border)]" />
+
+      {/* Simplify toggle */}
+      <button
+        onClick={onSimplifiedToggle}
+        aria-label={simplified ? 'הצג אקורדים מקוריים' : 'פשט אקורדים'}
+        title={simplified ? 'אקורדים מקוריים' : 'גרסה קלה'}
+        className={`flex items-center gap-1 px-2 py-1 rounded transition-colors ${
+          simplified
+            ? 'bg-[var(--primary)] text-white'
+            : 'hover:bg-[var(--border)]'
+        }`}
+      >
+        <Sparkles size={14} />
+        <span className="text-xs font-medium">קל</span>
+      </button>
 
       <div className="w-px h-6 bg-[var(--border)]" />
 

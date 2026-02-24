@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef, useMemo } from 'react'
 import { parseChordPro } from '@/lib/chordpro/parser'
 import { transposeChord } from '@/lib/chordpro/transpose'
+import { simplifyChord } from '@/lib/chordpro/simplify'
 import ChordLine from './ChordLine'
 import SongControls from './SongControls'
 import type { SongSection, ChordWord } from '@/lib/chordpro/types'
@@ -18,16 +19,22 @@ interface SongViewProps {
 
 const FONT_SIZES = ['text-sm', 'text-base', 'text-lg']
 
-function transposeSectionWords(section: SongSection, steps: number): SongSection {
-  if (steps === 0) return section
+function transformSectionWords(
+  section: SongSection,
+  steps: number,
+  simplified: boolean,
+): SongSection {
+  if (steps === 0 && !simplified) return section
   return {
     ...section,
     lines: section.lines.map(line => ({
       ...line,
-      words: line.words.map((word: ChordWord) => ({
-        ...word,
-        chord: word.chord ? transposeChord(word.chord, steps) : undefined,
-      })),
+      words: line.words.map((word: ChordWord) => {
+        if (!word.chord) return word
+        let chord = steps !== 0 ? transposeChord(word.chord, steps) : word.chord
+        if (simplified) chord = simplifyChord(chord)
+        return { ...word, chord }
+      }),
     })),
   }
 }
@@ -37,6 +44,7 @@ export default function SongView({ content, title, artist, originalKey, language
   const [fontSize, setFontSize] = useState(1)
   const [autoScroll, setAutoScroll] = useState(false)
   const [scrollSpeed, setScrollSpeed] = useState(50)
+  const [simplified, setSimplified] = useState(false)
   const scrollRef = useRef<number>(0)
   const containerRef = useRef<HTMLDivElement>(null)
 
@@ -44,12 +52,14 @@ export default function SongView({ content, title, artist, originalKey, language
 
   const currentKey = useMemo(() => {
     const key = originalKey || parsed.meta.key || '?'
-    return transpose !== 0 ? transposeChord(key, transpose) : key
-  }, [originalKey, parsed.meta.key, transpose])
+    let result = transpose !== 0 ? transposeChord(key, transpose) : key
+    if (simplified) result = simplifyChord(result)
+    return result
+  }, [originalKey, parsed.meta.key, transpose, simplified])
 
   const sections = useMemo(
-    () => parsed.sections.map(s => transposeSectionWords(s, transpose)),
-    [parsed.sections, transpose]
+    () => parsed.sections.map(s => transformSectionWords(s, transpose, simplified)),
+    [parsed.sections, transpose, simplified]
   )
 
   // Auto-scroll
@@ -94,10 +104,12 @@ export default function SongView({ content, title, artist, originalKey, language
           fontSize={fontSize}
           autoScroll={autoScroll}
           scrollSpeed={scrollSpeed}
+          simplified={simplified}
           onTranspose={(dir) => setTranspose(prev => prev + dir)}
           onFontSizeChange={(dir) => setFontSize(prev => Math.max(0, Math.min(2, prev + dir)))}
           onAutoScrollToggle={() => setAutoScroll(prev => !prev)}
           onScrollSpeedChange={setScrollSpeed}
+          onSimplifiedToggle={() => setSimplified(prev => !prev)}
         />
       </div>
 
