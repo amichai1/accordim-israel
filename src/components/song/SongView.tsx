@@ -91,7 +91,7 @@ export default function SongView({ content, title, artist, originalKey, language
   const dir = language === 'he' ? 'rtl' : 'ltr'
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-6" ref={containerRef}>
+    <div className="mx-auto max-w-3xl px-4 py-6 animate-fade-in" ref={containerRef}>
       {/* Header */}
       <div className="mb-4">
         <h1 className="text-2xl font-bold">{title}</h1>

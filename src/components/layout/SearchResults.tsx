@@ -19,7 +19,7 @@ export default function SearchResults({ results, loading, onClose }: SearchResul
   const hasResults = hasSongs || hasArtists
 
   return (
-    <div className="absolute top-full mt-1 w-full bg-[var(--card)] border border-[var(--border)] rounded-lg shadow-lg z-50 max-h-80 overflow-y-auto">
+    <div className="absolute top-full mt-1 w-full bg-[var(--card)] border border-[var(--border)] rounded-lg shadow-lg z-50 max-h-80 overflow-y-auto animate-slide-down">
       {loading && (
         <div className="p-3 text-center text-sm text-[var(--muted)]">מחפש...</div>
       )}

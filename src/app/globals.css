@@ -108,3 +108,70 @@ body {
   from { transform: translateY(0); }
   to { transform: translateY(var(--scroll-distance)); }
 }
+
+/* ===== Animations & Micro-interactions ===== */
+
+/* Page fade-in */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in {
+  animation: fadeIn 250ms ease-out both;
+}
+
+/* Staggered card entrance */
+@keyframes cardEnter {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-card-enter {
+  animation: cardEnter 300ms ease-out both;
+}
+
+/* Stagger children — each child gets a progressively longer delay */
+.stagger-children > * {
+  animation: cardEnter 300ms ease-out both;
+}
+.stagger-children > *:nth-child(1) { animation-delay: 0ms; }
+.stagger-children > *:nth-child(2) { animation-delay: 50ms; }
+.stagger-children > *:nth-child(3) { animation-delay: 100ms; }
+.stagger-children > *:nth-child(4) { animation-delay: 150ms; }
+.stagger-children > *:nth-child(5) { animation-delay: 200ms; }
+.stagger-children > *:nth-child(6) { animation-delay: 250ms; }
+.stagger-children > *:nth-child(7) { animation-delay: 300ms; }
+.stagger-children > *:nth-child(8) { animation-delay: 350ms; }
+
+/* Theme toggle spin */
+@keyframes spinIn {
+  from { transform: rotate(-90deg) scale(0.8); opacity: 0; }
+  to { transform: rotate(0) scale(1); opacity: 1; }
+}
+
+.animate-spin-in {
+  animation: spinIn 250ms ease-out both;
+}
+
+/* Slide down for dropdown/search results */
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-slide-down {
+  animation: slideDown 200ms ease-out both;
+}
+
+/* Respect prefers-reduced-motion */
+@media (prefers-reduced-motion: reduce) {
+  .animate-fade-in,
+  .animate-card-enter,
+  .stagger-children > *,
+  .animate-spin-in,
+  .animate-slide-down {
+    animation: none !important;
+    transition: none !important;
+  }
+}

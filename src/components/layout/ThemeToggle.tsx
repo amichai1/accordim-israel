@@ -30,7 +30,9 @@ export default function ThemeToggle() {
       aria-label={dark ? 'מעבר למצב בהיר' : 'מעבר למצב כהה'}
       className="p-2 rounded-lg hover:bg-[var(--border)] transition-colors"
     >
-      {dark ? <Sun size={18} /> : <Moon size={18} />}
+      <span key={dark ? 'sun' : 'moon'} className="animate-spin-in inline-flex">
+        {dark ? <Sun size={18} /> : <Moon size={18} />}
+      </span>
     </button>
   )
 }
