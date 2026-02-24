@@ -78,7 +78,7 @@ export default function SearchBar() {
       <div className="relative">
         <button
           onClick={goToSearchPage}
-          className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--muted)] hover:text-[var(--primary)] transition-colors"
+          className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--muted)] hover:text-[var(--primary)] transition-colors min-w-[44px] min-h-[44px] sm:min-w-0 sm:min-h-0 flex items-center justify-center"
           aria-label="חפש"
         >
           <Search size={16} />
@@ -90,7 +90,7 @@ export default function SearchBar() {
           onKeyDown={handleKeyDown}
           onFocus={() => results && setIsOpen(true)}
           placeholder="חפש שיר, אמן או מילים..."
-          className="w-full pr-9 pl-4 py-2 rounded-lg border border-[var(--border)] bg-[var(--card)] text-sm focus:outline-none focus:border-[var(--primary)] transition-colors"
+          className="w-full pr-9 pl-4 py-2.5 sm:py-2 rounded-lg border border-[var(--border)] bg-[var(--card)] text-base sm:text-sm focus:outline-none focus:border-[var(--primary)] transition-colors"
         />
       </div>
       {isOpen && results && (

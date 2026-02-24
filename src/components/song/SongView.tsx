@@ -102,8 +102,8 @@ export default function SongView({ content, title, artist, originalKey, language
         </div>
       </div>
 
-      {/* Controls - sticky below header */}
-      <div className="sticky top-14 z-40 -mx-4 px-4 py-2 mb-4 bg-[var(--background)]/80 backdrop-blur-md border-b border-transparent transition-shadow [&:not(:first-child)]:border-[var(--border)]/50 shadow-sm">
+      {/* Controls - sticky on desktop, fixed bottom on mobile (handled inside SongControls) */}
+      <div className="sm:sticky sm:top-14 sm:z-40 sm:-mx-4 sm:px-4 sm:py-2 mb-4 sm:bg-[var(--background)]/80 sm:backdrop-blur-md sm:shadow-sm">
         <SongControls
           currentKey={currentKey}
           transpose={transpose}
@@ -120,8 +120,8 @@ export default function SongView({ content, title, artist, originalKey, language
         />
       </div>
 
-      {/* Song content */}
-      <div className={`${FONT_SIZES[fontSize]} leading-relaxed`} dir={dir}>
+      {/* Song content — extra bottom padding on mobile for fixed bottom bar */}
+      <div className={`${FONT_SIZES[fontSize]} leading-relaxed pb-20 sm:pb-0`} dir={dir}>
         {sections.map((section, si) => (
           <div key={si} className="mb-4">
             {section.label && (

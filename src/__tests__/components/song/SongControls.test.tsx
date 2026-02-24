@@ -18,33 +18,47 @@ describe('SongControls', () => {
     onSimplifiedToggle: () => {},
   }
 
-  it('renders transpose buttons', () => {
+  it('renders transpose buttons (desktop + mobile)', () => {
     render(<SongControls {...defaultProps} />)
-    expect(screen.getByLabelText('הורד חצי טון')).toBeInTheDocument()
-    expect(screen.getByLabelText('העלה חצי טון')).toBeInTheDocument()
+    // Both desktop and mobile render these buttons
+    expect(screen.getAllByLabelText('הורד חצי טון').length).toBeGreaterThanOrEqual(1)
+    expect(screen.getAllByLabelText('העלה חצי טון').length).toBeGreaterThanOrEqual(1)
   })
 
   it('displays current key', () => {
     render(<SongControls {...defaultProps} />)
-    expect(screen.getByText('Am')).toBeInTheDocument()
+    // Key shown in both desktop and mobile
+    expect(screen.getAllByText('Am').length).toBeGreaterThanOrEqual(1)
   })
 
   it('calls onTranspose when clicking up', async () => {
     const user = userEvent.setup()
     let called = 0
     render(<SongControls {...defaultProps} onTranspose={() => called++} />)
-    await user.click(screen.getByLabelText('העלה חצי טון'))
+    // Click the first instance (desktop)
+    await user.click(screen.getAllByLabelText('העלה חצי טון')[0])
     expect(called).toBe(1)
   })
 
   it('renders font size controls', () => {
     render(<SongControls {...defaultProps} />)
-    expect(screen.getByLabelText('הקטן פונט')).toBeInTheDocument()
-    expect(screen.getByLabelText('הגדל פונט')).toBeInTheDocument()
+    expect(screen.getAllByLabelText('הקטן פונט').length).toBeGreaterThanOrEqual(1)
+    expect(screen.getAllByLabelText('הגדל פונט').length).toBeGreaterThanOrEqual(1)
   })
 
   it('renders auto-scroll toggle', () => {
     render(<SongControls {...defaultProps} />)
-    expect(screen.getByLabelText('גלילה אוטומטית')).toBeInTheDocument()
+    expect(screen.getAllByLabelText('גלילה אוטומטית').length).toBeGreaterThanOrEqual(1)
+  })
+
+  it('renders simplify toggle', () => {
+    render(<SongControls {...defaultProps} />)
+    expect(screen.getAllByLabelText('פשט אקורדים').length).toBeGreaterThanOrEqual(1)
+  })
+
+  it('shows capo indicator when suggestions exist', () => {
+    const capoSuggestions = [{ fret: 2, shapesKey: 'Am' }]
+    render(<SongControls {...defaultProps} capoSuggestions={capoSuggestions} />)
+    expect(screen.getByText(/קאפו על שריג 2/)).toBeInTheDocument()
   })
 })

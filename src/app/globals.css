@@ -164,6 +164,11 @@ body {
   animation: slideDown 200ms ease-out both;
 }
 
+/* Safe area for mobile bottom bar (notch devices) */
+.safe-bottom {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
 /* Respect prefers-reduced-motion */
 @media (prefers-reduced-motion: reduce) {
   .animate-fade-in,
