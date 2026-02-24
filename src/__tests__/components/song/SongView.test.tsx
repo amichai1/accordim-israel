@@ -31,7 +31,7 @@ describe('SongView', () => {
 
   it('renders lyrics', () => {
     render(<SongView content={sampleChordPro} title="הללויה" artist="Leonard Cohen" originalKey="C" />)
-    expect(screen.getByText(/שמעתי שיש/)).toBeInTheDocument()
+    expect(screen.getByText('שמעתי')).toBeInTheDocument()
   })
 
   it('renders section labels', () => {
