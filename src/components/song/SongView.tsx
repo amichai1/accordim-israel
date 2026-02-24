@@ -3,6 +3,8 @@
 import { useState, useEffect, useRef, useMemo } from 'react'
 import { parseChordPro } from '@/lib/chordpro/parser'
 import { transposeChord } from '@/lib/chordpro/transpose'
+import { findEasyTranspose } from '@/lib/chordpro/simplify'
+import { getCapoSuggestions, type CapoSuggestion } from '@/lib/chordpro/capo'
 import ChordLine from './ChordLine'
 import SongControls from './SongControls'
 import type { SongSection, ChordWord } from '@/lib/chordpro/types'
@@ -42,6 +44,22 @@ export default function SongView({ content, title, artist, originalKey, language
 
   const parsed = useMemo(() => parseChordPro(content), [content])
 
+  // Collect all chords from the song for easy-key analysis
+  const allChords = useMemo(() => {
+    const chords: string[] = []
+    for (const section of parsed.sections) {
+      for (const line of section.lines) {
+        for (const word of line.words) {
+          if (word.chord) chords.push(word.chord)
+        }
+      }
+    }
+    return chords
+  }, [parsed.sections])
+
+  // Calculate the easy transpose offset
+  const easyTranspose = useMemo(() => findEasyTranspose(allChords), [allChords])
+
   const currentKey = useMemo(() => {
     const key = originalKey || parsed.meta.key || '?'
     return transpose !== 0 ? transposeChord(key, transpose) : key
@@ -50,6 +68,12 @@ export default function SongView({ content, title, artist, originalKey, language
   const sections = useMemo(
     () => parsed.sections.map(s => transposeSectionWords(s, transpose)),
     [parsed.sections, transpose]
+  )
+
+  // Capo suggestions — only when transposed away from original
+  const capoSuggestions: CapoSuggestion[] = useMemo(
+    () => transpose !== 0 ? getCapoSuggestions(currentKey) : [],
+    [currentKey, transpose]
   )
 
   // Auto-scroll
@@ -72,10 +96,17 @@ export default function SongView({ content, title, artist, originalKey, language
     }
   }, [autoScroll, scrollSpeed])
 
+  function handleEasyKey() {
+    if (easyTranspose === 0) return
+    // Toggle: if already at easy key, go back to original
+    setTranspose(prev => prev === easyTranspose ? 0 : easyTranspose)
+  }
+
   const dir = language === 'he' ? 'rtl' : 'ltr'
+  const isEasyKeyActive = easyTranspose !== 0 && transpose === easyTranspose
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-6" ref={containerRef}>
+    <div className="mx-auto max-w-3xl px-4 py-6 animate-fade-in" ref={containerRef}>
       {/* Header */}
       <div className="mb-4">
         <h1 className="text-2xl font-bold">{title}</h1>
@@ -86,23 +117,27 @@ export default function SongView({ content, title, artist, originalKey, language
         </div>
       </div>
 
-      {/* Controls */}
-      <div className="mb-6">
+      {/* Controls - sticky on desktop, fixed bottom on mobile (handled inside SongControls) */}
+      <div className="sm:sticky sm:top-14 sm:z-40 sm:-mx-4 sm:px-4 sm:py-2 mb-4 sm:bg-[var(--background)]/80 sm:backdrop-blur-md sm:shadow-sm">
         <SongControls
           currentKey={currentKey}
           transpose={transpose}
           fontSize={fontSize}
           autoScroll={autoScroll}
           scrollSpeed={scrollSpeed}
+          hasEasyKey={easyTranspose !== 0}
+          isEasyKeyActive={isEasyKeyActive}
           onTranspose={(dir) => setTranspose(prev => prev + dir)}
           onFontSizeChange={(dir) => setFontSize(prev => Math.max(0, Math.min(2, prev + dir)))}
           onAutoScrollToggle={() => setAutoScroll(prev => !prev)}
           onScrollSpeedChange={setScrollSpeed}
+          onEasyKey={handleEasyKey}
+          capoSuggestions={capoSuggestions}
         />
       </div>
 
-      {/* Song content */}
-      <div className={`${FONT_SIZES[fontSize]} leading-relaxed`} dir={dir}>
+      {/* Song content — extra bottom padding on mobile for fixed bottom bar */}
+      <div className={`${FONT_SIZES[fontSize]} leading-relaxed pb-20 sm:pb-0`} dir={dir}>
         {sections.map((section, si) => (
           <div key={si} className="mb-4">
             {section.label && (
