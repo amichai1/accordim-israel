@@ -30,7 +30,7 @@ export default async function HomePage() {
   ])
 
   return (
-    <div className="mx-auto max-w-5xl px-4 py-8">
+    <div className="mx-auto max-w-5xl px-4 py-8 animate-fade-in">
       {/* Hero search */}
       <div className="text-center mb-10">
         <h1 className="text-3xl sm:text-4xl font-bold mb-2">אקורדים ישראל</h1>
@@ -42,7 +42,7 @@ export default async function HomePage() {
       {popularSongs && popularSongs.length > 0 && (
         <section className="mb-10">
           <h2 className="text-xl font-bold mb-4">שירים פופולריים</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 stagger-children">
             {popularSongs.map((song: SongWithArtist) => (
               <SongCard key={song.id} song={song} />
             ))}
@@ -54,7 +54,7 @@ export default async function HomePage() {
       {recentSongs && recentSongs.length > 0 && (
         <section className="mb-10">
           <h2 className="text-xl font-bold mb-4">נוספו לאחרונה</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 stagger-children">
             {recentSongs.map((song: SongWithArtist) => (
               <SongCard key={song.id} song={song} />
             ))}
@@ -66,7 +66,7 @@ export default async function HomePage() {
       {artists && artists.length > 0 && (
         <section className="mb-10">
           <h2 className="text-xl font-bold mb-4">אמנים</h2>
-          <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-5 gap-3">
+          <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-5 gap-3 stagger-children">
             {artists.map((artist: Artist) => (
               <ArtistCard key={artist.id} artist={artist} />
             ))}

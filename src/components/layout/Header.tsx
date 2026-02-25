@@ -21,7 +21,7 @@ export default function Header() {
         <div className="flex items-center gap-2">
           <Link
             href="/auth/login"
-            className="text-sm px-3 py-1.5 rounded-lg hover:bg-[var(--border)] transition-colors"
+            className="text-sm px-3 py-2.5 sm:py-1.5 rounded-lg hover:bg-[var(--border)] transition-colors min-h-[44px] sm:min-h-0 flex items-center"
           >
             כניסה
           </Link>
