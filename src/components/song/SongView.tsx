@@ -145,7 +145,7 @@ export default function SongView({ content, title, artist, artistSlug, originalK
   const isEasyKeyActive = easyTranspose !== 0 && transpose === easyTranspose
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-6 animate-fade-in" ref={containerRef}>
+    <div className="py-6 animate-fade-in" ref={containerRef}>
       {/* Header */}
       <div className="mb-4">
         <h1 className="text-2xl font-bold">{title}</h1>
@@ -167,8 +167,8 @@ export default function SongView({ content, title, artist, artistSlug, originalK
         <InstrumentSelector instrument={instrument} onChange={setInstrument} />
       </div>
 
-      {/* Controls - sticky bar that follows scroll on all screen sizes */}
-      <div className="sticky top-14 z-40 -mx-4 px-4 py-2 mb-4 bg-[var(--background)]/80 backdrop-blur-md">
+      {/* Controls - sticky bar: top-[6.2rem] on mobile (header + search bar), top-14 on desktop */}
+      <div className="sticky top-[6.2rem] sm:top-14 z-40 -mx-4 px-4 py-2 mb-4 bg-[var(--background)]/80 backdrop-blur-md">
         <SongControls
           currentKey={currentKey}
           transpose={transpose}

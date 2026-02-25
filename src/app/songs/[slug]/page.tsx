@@ -1,7 +1,9 @@
 import { notFound } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import SongView from '@/components/song/SongView'
+import SuggestedSongs from '@/components/song/SuggestedSongs'
 import type { Metadata } from 'next'
+import type { SongWithArtist } from '@/lib/supabase/types'
 
 interface Props {
   params: Promise<{ slug: string }>
@@ -42,17 +44,33 @@ export default async function SongPage({ params }: Props) {
   // Increment views via secure server function
   await supabase.rpc('increment_song_views', { song_slug: slug })
 
+  // Fetch random suggested songs (excluding current song)
+  const { data: suggestedSongs } = await supabase
+    .from('songs')
+    .select('*, artist:artists(*)')
+    .neq('slug', slug)
+    .order('views', { ascending: false })
+    .limit(20)
+
+  // Shuffle and take 8
+  const shuffled = (suggestedSongs || [])
+    .sort(() => Math.random() - 0.5)
+    .slice(0, 8) as SongWithArtist[]
+
   const artist = song.artist as unknown as { name: string; slug: string }
 
   return (
-    <SongView
-      content={song.content}
-      title={song.title}
-      artist={artist.name}
-      artistSlug={artist.slug}
-      originalKey={song.original_key}
-      slug={song.slug}
-      language={song.language}
-    />
+    <div className="mx-auto max-w-3xl px-4">
+      <SongView
+        content={song.content}
+        title={song.title}
+        artist={artist.name}
+        artistSlug={artist.slug}
+        originalKey={song.original_key}
+        slug={song.slug}
+        language={song.language}
+      />
+      <SuggestedSongs songs={shuffled} />
+    </div>
   )
 }

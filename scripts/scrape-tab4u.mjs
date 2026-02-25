@@ -237,11 +237,18 @@ async function scrapeSongPage(page, url) {
     const h1Text = h1.textContent.trim();
     let artist = '', songTitle = '';
 
-    const heMatch = h1Text.match(/אקורדים לשיר (.+?) של (.+)/);
-    if (heMatch) {
-      songTitle = heMatch[1].trim();
-      artist = heMatch[2].trim();
-    } else {
+    // Use lastIndexOf to split at the LAST "של" — handles songs like "כוחה של אהבה של פאר טסי"
+    const prefix = 'אקורדים לשיר ';
+    const separator = ' של ';
+    if (h1Text.startsWith(prefix)) {
+      const rest = h1Text.slice(prefix.length);
+      const lastShelIdx = rest.lastIndexOf(separator);
+      if (lastShelIdx !== -1) {
+        songTitle = rest.slice(0, lastShelIdx).trim();
+        artist = rest.slice(lastShelIdx + separator.length).trim();
+      }
+    }
+    if (!songTitle) {
       // Fallback: "artist - title"
       const parts = h1Text.split(' - ');
       artist = parts[0]?.trim() || '';

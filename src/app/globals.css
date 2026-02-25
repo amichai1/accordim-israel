@@ -56,6 +56,8 @@ body {
   line-height: 1.4;
   white-space: nowrap;
   min-height: 1.4em;
+  direction: ltr;
+  unicode-bidi: isolate;
 }
 
 .chord-word .lyric {
@@ -74,11 +76,10 @@ body {
   padding-inline-start: 0.5em;
 }
 
-/* Song line */
+/* Song line — inherits direction from parent (rtl/ltr) */
 .song-line {
   display: flex;
   flex-wrap: wrap;
-  direction: inherit;
 }
 
 /* Section labels */
@@ -183,6 +184,15 @@ body {
 
 .animate-slide-down {
   animation: slideDown 200ms ease-out both;
+}
+
+/* Hide scrollbar for horizontal carousels */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
 }
 
 /* Safe area for mobile bottom bar (notch devices) */

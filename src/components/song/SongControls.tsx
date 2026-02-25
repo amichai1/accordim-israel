@@ -91,9 +91,7 @@ export default function SongControls({
           <button onClick={onAutoScrollToggle} aria-label="גלילה אוטומטית" className={autoScroll ? btnActive : btnDefault}>
             {autoScroll ? <Pause size={16} /> : <Play size={16} />}
           </button>
-          {autoScroll && (
-            <input type="range" min={10} max={100} value={scrollSpeed} onChange={(e) => onScrollSpeedChange(Number(e.target.value))} className="w-20 accent-[var(--primary)]" aria-label="מהירות גלילה" />
-          )}
+          <input type="range" min={10} max={100} value={scrollSpeed} onChange={(e) => onScrollSpeedChange(Number(e.target.value))} className="w-20 accent-[var(--primary)]" aria-label="מהירות גלילה" />
         </div>
       </div>
 
@@ -152,12 +150,10 @@ export default function SongControls({
                 </button>
               </div>
             </div>
-            {autoScroll && (
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-medium text-[var(--muted)]">מהירות גלילה</span>
-                <input type="range" min={10} max={100} value={scrollSpeed} onChange={(e) => onScrollSpeedChange(Number(e.target.value))} className="w-32 accent-[var(--primary)]" aria-label="מהירות גלילה" />
-              </div>
-            )}
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-medium text-[var(--muted)]">מהירות גלילה</span>
+              <input type="range" min={10} max={100} value={scrollSpeed} onChange={(e) => onScrollSpeedChange(Number(e.target.value))} className="w-32 accent-[var(--primary)]" aria-label="מהירות גלילה" />
+            </div>
           </div>
         )}
       </div>
