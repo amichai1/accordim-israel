@@ -1,7 +1,8 @@
 'use client'
 
-import { useEffect, useRef } from 'react'
-import ChordDiagram from './ChordDiagram'
+import { useEffect, useRef, useState } from 'react'
+import { ChevronLeft, ChevronRight } from 'lucide-react'
+import ChordDiagram, { getVoicingCount } from './ChordDiagram'
 import type { InstrumentType } from '@/lib/chordpro/chordData'
 
 interface ChordPopupProps {
@@ -13,6 +14,13 @@ interface ChordPopupProps {
 
 export default function ChordPopup({ chord, instrument, anchorRect, onClose }: ChordPopupProps) {
   const popupRef = useRef<HTMLDivElement>(null)
+  const [voicingIndex, setVoicingIndex] = useState(0)
+  const totalVoicings = getVoicingCount(chord, instrument)
+
+  // Reset voicing when chord or instrument changes
+  useEffect(() => {
+    setVoicingIndex(0)
+  }, [chord, instrument])
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
@@ -52,7 +60,7 @@ export default function ChordPopup({ chord, instrument, anchorRect, onClose }: C
     popup.style.position = 'fixed'
     popup.style.top = `${top}px`
     popup.style.left = `${left}px`
-  }, [anchorRect])
+  }, [anchorRect, voicingIndex])
 
   const diagramSize = instrument === 'piano' ? 'w-36 h-20' : 'w-24 h-28'
 
@@ -64,8 +72,30 @@ export default function ChordPopup({ chord, instrument, anchorRect, onClose }: C
     >
       <div className="text-center font-bold text-[var(--chord)] mb-1 text-sm">{chord}</div>
       <div className={diagramSize}>
-        <ChordDiagram chord={chord} instrument={instrument} />
+        <ChordDiagram chord={chord} instrument={instrument} voicingIndex={voicingIndex} />
       </div>
+      {/* Voicing navigation */}
+      {totalVoicings > 1 && (
+        <div className="flex items-center justify-center gap-2 mt-2">
+          <button
+            onClick={() => setVoicingIndex((prev) => (prev - 1 + totalVoicings) % totalVoicings)}
+            className="p-0.5 rounded hover:bg-[var(--border)] transition-colors"
+            aria-label="Voicing קודם"
+          >
+            <ChevronRight size={14} />
+          </button>
+          <span className="text-xs text-[var(--muted)]">
+            {voicingIndex + 1} / {totalVoicings}
+          </span>
+          <button
+            onClick={() => setVoicingIndex((prev) => (prev + 1) % totalVoicings)}
+            className="p-0.5 rounded hover:bg-[var(--border)] transition-colors"
+            aria-label="Voicing הבא"
+          >
+            <ChevronLeft size={14} />
+          </button>
+        </div>
+      )}
     </div>
   )
 }

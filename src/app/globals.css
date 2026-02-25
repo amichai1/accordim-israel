@@ -103,6 +103,16 @@ body {
   --muted: #CCCCCC;
 }
 
+/* Clickable chord hover */
+.chord-clickable {
+  cursor: pointer;
+  transition: opacity 0.15s ease;
+}
+
+.chord-clickable:hover {
+  opacity: 0.7;
+}
+
 /* Auto-scroll animation */
 @keyframes autoscroll {
   from { transform: translateY(0); }
