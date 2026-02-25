@@ -1,3 +1,5 @@
+'use client'
+
 import Link from 'next/link'
 import { Music, Eye } from 'lucide-react'
 import type { Song, Artist } from '@/lib/supabase/types'

@@ -13,8 +13,9 @@ describe('ChordLine', () => {
       ],
     }
     render(<ChordLine line={line} />)
-    expect(screen.getByText('שמעתי שיש')).toBeInTheDocument()
-    expect(screen.getByText('אקורד סודי')).toBeInTheDocument()
+    // buildSegments splits "שמעתי שיש " at the space
+    expect(screen.getByText('שמעתי')).toBeInTheDocument()
+    expect(screen.getByText('אקורד')).toBeInTheDocument()
   })
 
   it('renders chords above words', () => {

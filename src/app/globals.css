@@ -63,6 +63,17 @@ body {
   line-height: 1.6;
 }
 
+/* Word groups — keep chord+word pairs together */
+.word-group {
+  display: inline-flex;
+  align-items: flex-end;
+}
+
+/* Spacing between consecutive chords with no text between them */
+.word-group .chord-word + .chord-word > .chord:first-child {
+  padding-inline-start: 0.5em;
+}
+
 /* Song line */
 .song-line {
   display: flex;
