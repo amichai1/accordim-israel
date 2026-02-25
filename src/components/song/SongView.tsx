@@ -1,16 +1,20 @@
 'use client'
 
-import { useState, useEffect, useRef, useMemo } from 'react'
+import { useState, useEffect, useRef, useMemo, useCallback } from 'react'
 import { parseChordPro } from '@/lib/chordpro/parser'
 import { transposeChord } from '@/lib/chordpro/transpose'
 import ChordLine from './ChordLine'
 import SongControls from './SongControls'
+import InstrumentSelector from './InstrumentSelector'
+import ChordPopup from './ChordPopup'
 import type { SongSection, ChordWord } from '@/lib/chordpro/types'
+import type { InstrumentType } from '@/lib/chordpro/chordData'
 
 interface SongViewProps {
   content: string
   title: string
   artist: string
+  artistSlug?: string
   originalKey: string | null
   slug?: string
   language?: string
@@ -32,12 +36,17 @@ function transposeSectionWords(section: SongSection, steps: number): SongSection
   }
 }
 
-export default function SongView({ content, title, artist, originalKey, language = 'he' }: SongViewProps) {
+export default function SongView({ content, title, artist, artistSlug, originalKey, language = 'he' }: SongViewProps) {
   const [transpose, setTranspose] = useState(0)
   const [fontSize, setFontSize] = useState(1)
   const [autoScroll, setAutoScroll] = useState(false)
   const [scrollSpeed, setScrollSpeed] = useState(50)
+  const [instrument, setInstrument] = useState<InstrumentType>('guitar')
+  const [popupChord, setPopupChord] = useState<string | null>(null)
+  const [popupAnchor, setPopupAnchor] = useState<DOMRect | null>(null)
   const scrollRef = useRef<number>(0)
+  const lastTimeRef = useRef<number>(0)
+  const accumulatorRef = useRef<number>(0)
   const containerRef = useRef<HTMLDivElement>(null)
 
   const parsed = useMemo(() => parseChordPro(content), [content])
@@ -52,17 +61,32 @@ export default function SongView({ content, title, artist, originalKey, language
     [parsed.sections, transpose]
   )
 
-  // Auto-scroll
+  // Auto-scroll with time-based accumulator for smooth sub-pixel scrolling
   useEffect(() => {
     if (!autoScroll) {
       if (scrollRef.current) cancelAnimationFrame(scrollRef.current)
+      lastTimeRef.current = 0
+      accumulatorRef.current = 0
       return
     }
 
-    const speed = scrollSpeed / 1000
+    function tick(timestamp: number) {
+      if (lastTimeRef.current === 0) {
+        lastTimeRef.current = timestamp
+      }
+      const delta = timestamp - lastTimeRef.current
+      lastTimeRef.current = timestamp
 
-    function tick() {
-      window.scrollBy(0, speed)
+      // Speed: scrollSpeed ranges 10-100, map to ~20-200 pixels per second
+      const pixelsPerSecond = scrollSpeed * 2
+      accumulatorRef.current += (pixelsPerSecond * delta) / 1000
+
+      if (accumulatorRef.current >= 1) {
+        const px = Math.floor(accumulatorRef.current)
+        window.scrollBy(0, px)
+        accumulatorRef.current -= px
+      }
+
       scrollRef.current = requestAnimationFrame(tick)
     }
 
@@ -72,6 +96,21 @@ export default function SongView({ content, title, artist, originalKey, language
     }
   }, [autoScroll, scrollSpeed])
 
+  const handleChordClick = useCallback((chord: string, rect: DOMRect) => {
+    if (popupChord === chord) {
+      setPopupChord(null)
+      setPopupAnchor(null)
+    } else {
+      setPopupChord(chord)
+      setPopupAnchor(rect)
+    }
+  }, [popupChord])
+
+  const closePopup = useCallback(() => {
+    setPopupChord(null)
+    setPopupAnchor(null)
+  }, [])
+
   const dir = language === 'he' ? 'rtl' : 'ltr'
 
   return (
@@ -80,10 +119,21 @@ export default function SongView({ content, title, artist, originalKey, language
       <div className="mb-4">
         <h1 className="text-2xl font-bold">{title}</h1>
         <div className="flex items-center gap-2 text-[var(--muted)] text-sm mt-1">
-          <span>{artist}</span>
+          {artistSlug ? (
+            <a href={`/artists/${artistSlug}`} className="hover:text-[var(--primary)] hover:underline transition-colors">
+              {artist}
+            </a>
+          ) : (
+            <span>{artist}</span>
+          )}
           <span>•</span>
           <span>סולם: <strong className="text-[var(--chord)]">{currentKey}</strong></span>
         </div>
+      </div>
+
+      {/* Instrument selector */}
+      <div className="mb-3">
+        <InstrumentSelector instrument={instrument} onChange={setInstrument} />
       </div>
 
       {/* Controls */}
@@ -111,11 +161,21 @@ export default function SongView({ content, title, artist, originalKey, language
               </div>
             )}
             {section.lines.map((line, li) => (
-              <ChordLine key={li} line={line} />
+              <ChordLine key={li} line={line} onChordClick={handleChordClick} />
             ))}
           </div>
         ))}
       </div>
+
+      {/* Chord popup */}
+      {popupChord && (
+        <ChordPopup
+          chord={popupChord}
+          instrument={instrument}
+          anchorRect={popupAnchor}
+          onClose={closePopup}
+        />
+      )}
     </div>
   )
 }

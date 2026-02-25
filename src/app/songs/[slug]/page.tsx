@@ -47,6 +47,7 @@ export default async function SongPage({ params }: Props) {
       content={song.content}
       title={song.title}
       artist={artist.name}
+      artistSlug={artist.slug}
       originalKey={song.original_key}
       slug={song.slug}
       language={song.language}

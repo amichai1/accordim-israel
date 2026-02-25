@@ -18,7 +18,21 @@ export default function SongCard({ song }: SongCardProps) {
         </div>
         <div className="min-w-0">
           <h3 className="font-bold truncate">{song.title}</h3>
-          <p className="text-sm text-[var(--muted)] truncate">{song.artist?.name}</p>
+          {song.artist?.slug ? (
+            <p
+              className="text-sm text-[var(--muted)] truncate hover:text-[var(--primary)] hover:underline transition-colors"
+              onClick={(e) => {
+                e.preventDefault()
+                e.stopPropagation()
+                window.location.href = `/artists/${song.artist.slug}`
+              }}
+              role="link"
+            >
+              {song.artist.name}
+            </p>
+          ) : (
+            <p className="text-sm text-[var(--muted)] truncate">{song.artist?.name}</p>
+          )}
           {song.original_key && (
             <span className="text-xs text-[var(--chord)] font-medium mt-1 inline-block">
               {song.original_key}
